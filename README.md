@@ -6,7 +6,10 @@
 [![Donate](https://img.shields.io/badge/dynamic/json?color=%23ff424d&label=Patreon&style=flat-square&query=data.attributes.patron_count&suffix=%20patrons&url=https%3A%2F%2Fwww.patreon.com%2Fapi%2Fcampaigns%2F233228)](http://patreon.com/koistya)
 [![Discord](https://img.shields.io/discord/643523529131950086?label=Chat&style=flat-square)](https://discord.gg/bSsv7XM)
 
-An HTTP client for [Cloudflare API](https://api.cloudflare.com/) that works in Node.js, browser, and CF Workers environment.
+Lightweight universal HTTP client for [Cloudflare API](https://api.cloudflare.com/)
+based on [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+that works in Node.js, browser, and CF Workers environment. Optimized for a good
+developer experience and minimal code with zero dependencies supporting tree-shaking.
 
 ```bash
 # Install using NPM
@@ -67,6 +70,7 @@ For more information and usage examples check out the source code / tests:
 - **[`user.ts`](./src/user.ts)** ([tests](./src/user.test.ts))
 - **[`userTokens.ts`](./src/userTokens.ts)** ([tests](./src/userTokens.test.ts))
 - **[`dnsRecords.ts`](./src/dnsRecords.ts)** ([tests](./src/dnsRecords.test.ts))
+- **[`kv.ts`](./src/kv.ts)** ([tests](./src/kv.test.ts))
 
 ## Backers 💰
 
@@ -82,6 +86,15 @@ For more information and usage examples check out the source code / tests:
 
 You're very welcome to [create a PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request)
 or send me a message on [Discord](https://discord.gg/bSsv7XM).
+
+```bash
+$ git clone https://github.com/kriasoft/cloudflare-client.git
+$ cd ./cloudflare-client
+$ yarn install
+$ yarn test
+```
+
+**NOTE**: In order to run unit tests locally you will need Node.js `v16.15` or newer and Cloudflare API token.
 
 ## License
 

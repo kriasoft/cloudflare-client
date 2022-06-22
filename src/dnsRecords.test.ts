@@ -8,7 +8,7 @@ const options = {
   accessToken: process.env.CLOUDFLARE_API_TOKEN as string,
 };
 
-test("dnsRecords(options).findMany()", async () => {
+test("dnsRecords(options).findMany(params)", async () => {
   const res = await dnsRecords(options).findMany({ type: "A" });
 
   if (res.result) {
@@ -65,7 +65,7 @@ test("dnsRecords(options).findMany()", async () => {
   `);
 });
 
-test("dnsRecords(options).findMany()", async () => {
+test("dnsRecords(options).find(params)", async () => {
   const res = await dnsRecords(options).find({ type: "A" });
   anonymize(res.result);
 
