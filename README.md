@@ -21,28 +21,36 @@ $ yarn add cloudflare-client
 ```ts
 import * as cf from "cloudflare-client";
 
+const settings = { zoneId: "xxx", accessToken: "<CLOUDFLARE_API_TOKEN>" };
+
 // Get the currently logged in / authenticated user
 // https://api.cloudflare.com/#user-user-details
-await cf.user({ accessToken: "xxx" }).get();
+await cf.user(settings).get();
 
 // Verify the user's token
 // https://api.cloudflare.com/#user-api-tokens-verify-token
-await cf.userTokens({ accessToken: "xxx" }).verify();
+await cf.userTokens(settings).verify();
 
 // Get DNS Record details
 // https://api.cloudflare.com/#dns-records-for-a-zone-dns-record-details
-await cf.dnsRecords({ zoneId: "xxx", accessToken: "xxx" }).get("xxx");
+await cf.dnsRecords(settings).get("xxx");
 
 // Find a single DNS Record matching the search parameters
 // https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
-await cf.dnsRecords({ zoneId: "xxx", accessToken: "xxx" }).find({ type: "A" });
+await cf.dnsRecords(settings).find({ type: "A" });
 
 // Get the list of DNS Records for the target zone
 // https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
-await cf
-  .dnsRecords({ zoneId: "xxx", accessToken: "xxx" })
-  .findMany({ type: "A" });
+await cf.dnsRecords(settings).findMany({ type: "A" });
 ```
+
+## Source Code
+
+For more information and usage examples check out the source code / tests:
+
+- **[`user.ts`](./src/user.ts)** ([tests](./src/user.test.ts))
+- **[`userTokens.ts`](./src/userTokens.ts)** ([tests](./src/userTokens.test.ts))
+- **[`dnsRecords.ts`](./src/dnsRecords.ts)** ([tests](./src/dnsRecords.test.ts))
 
 ## Backers 💰
 

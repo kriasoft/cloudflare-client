@@ -1,6 +1,6 @@
 {
   "name": "cloudflare-client",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "packageManager": "yarn@4.0.0-rc.9",
   "description": "Universal HTTP client for Cloudflare API",
   "license": "MIT",
@@ -51,12 +51,25 @@
   ],
   "type": "module",
   "exports": {
-    ".": "./dist/index.js",
-    "./user": "./dist/user.js",
-    "./userTokens": "./dist/userTokens.js",
-    "./dnsRecords": "./dist/dnsRecords.js",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./user": {
+      "types": "./dist/user.d.ts",
+      "default": "./dist/user.js"
+    },
+    "./userTokens": {
+      "types": "./dist/userTokens.d.ts",
+      "default": "./dist/userTokens.js"
+    },
+    "./dnsRecords": {
+      "types": "./dist/dnsRecords.d.ts",
+      "default": "./dist/dnsRecords.js"
+    },
     "./package.json": "./package.json"
   },
+  "types": "dist/index.d.ts",
   "scripts": {
     "lint": "eslint --report-unused-disable-directives .",
     "test": "node --experimental-vm-modules $(yarn bin jest)",
