@@ -6,7 +6,7 @@
 [![Donate](https://img.shields.io/badge/dynamic/json?color=%23ff424d&label=Patreon&style=flat-square&query=data.attributes.patron_count&suffix=%20patrons&url=https%3A%2F%2Fwww.patreon.com%2Fapi%2Fcampaigns%2F233228)](http://patreon.com/koistya)
 [![Discord](https://img.shields.io/discord/643523529131950086?label=Chat&style=flat-square)](https://discord.gg/bSsv7XM)
 
-An HTTP client for Cloudflare REST API that works in Node.js, browser, and CF Workers environment.
+An HTTP client for [Cloudflare API](https://api.cloudflare.com/) that works in Node.js, browser, and CF Workers environment.
 
 ```bash
 # Install using NPM
@@ -28,6 +28,14 @@ await cf.user({ accessToken: "xxx" }).get();
 // Verify the user's token
 // https://api.cloudflare.com/#user-api-tokens-verify-token
 await cf.userTokens({ accessToken: "xxx" }).verify();
+
+// Get DNS Record details
+// https://api.cloudflare.com/#dns-records-for-a-zone-dns-record-details
+await cf.dnsRecords({ zoneId: "xxx", accessToken: "xxx" }).get("xxx");
+
+// Find a single DNS Record matching the search parameters
+// https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
+await cf.dnsRecords({ zoneId: "xxx", accessToken: "xxx" }).find({ type: "A" });
 
 // Get the list of DNS Records for the target zone
 // https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
