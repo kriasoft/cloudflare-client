@@ -5,8 +5,8 @@ import {
   baseUrl,
   createFetch,
   type Credentials,
-  type ListRes,
-  type Res,
+  type DataResponse,
+  type ListResponse,
 } from "./fetch.js";
 
 // #region TypeScript
@@ -155,8 +155,8 @@ export type DnsRecord = {
   data?: Record<string, unknown>;
 };
 
-export type DnsRecordResponse = Res<DnsRecord>;
-export type DnsRecordsResponse = ListRes<DnsRecord>;
+export type DnsRecordResponse = DataResponse<DnsRecord>;
+export type DnsRecordsResponse = ListResponse<DnsRecord>;
 export type DeleteDnsRecordResponse = {
   result: {
     id: string;

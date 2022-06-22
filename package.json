@@ -1,6 +1,6 @@
 {
   "name": "cloudflare-client",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "packageManager": "yarn@4.0.0-rc.9",
   "description": "Universal HTTP client for Cloudflare API",
   "license": "MIT",
@@ -88,6 +88,7 @@
     "dotenv": "^16.0.1",
     "eslint": "^8.18.0",
     "jest": "^28.1.1",
+    "nanoid": "^4.0.0",
     "prettier": "^2.7.1",
     "typescript": "^4.7.4"
   },

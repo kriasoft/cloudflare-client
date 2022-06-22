@@ -2588,6 +2588,7 @@ __metadata:
     dotenv: "npm:^16.0.1"
     eslint: "npm:^8.18.0"
     jest: "npm:^28.1.1"
+    nanoid: "npm:^4.0.0"
     prettier: "npm:^2.7.1"
     typescript: "npm:^4.7.4"
   languageName: unknown
@@ -4446,6 +4447,15 @@ __metadata:
   version: 2.1.3
   resolution: "ms@npm:2.1.3"
   checksum: 78c12f6b473a022ebacc393fc14b76fe40b8feda7218124b86c4684e440e10377a063bec1d3902df1f74714f02b74b36ad7d3a6de9e2fbffa26fc29e5ce018fc
+  languageName: node
+  linkType: hard
+
+"nanoid@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "nanoid@npm:4.0.0"
+  bin:
+    nanoid: bin/nanoid.js
+  checksum: b6263a2a2425999b5aecabd18b25442ae4ef13048b2809ff173e0b0066f376b6fb2605d423763d1d26512cb095e71beee3d8b927f984603e05e169e171d8f6f0
   languageName: node
   linkType: hard
 

@@ -29,14 +29,17 @@ export type Message = {
   type?: string;
 };
 
-export interface Res<T> {
+export interface Response {
   success: boolean;
   errors: Message[];
   messages: Message[];
+}
+
+export interface DataResponse<T> extends Response {
   result: T | null;
 }
 
-export interface ListRes<T> extends Res<T[]> {
+export interface ListResponse<T> extends DataResponse<T[]> {
   result_info: {
     count: number;
     page: number;

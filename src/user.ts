@@ -1,7 +1,12 @@
 /* SPDX-FileCopyrightText: 2022-present Kriasoft */
 /* SPDX-License-Identifier: MIT */
 
-import { baseUrl, createFetch, type Credentials, type Res } from "./fetch.js";
+import {
+  baseUrl,
+  createFetch,
+  type Credentials,
+  type DataResponse,
+} from "./fetch.js";
 
 // #region TypeScript
 
@@ -34,7 +39,7 @@ export type Organization = {
   status: string;
 };
 
-export type UserResponse = Res<User>;
+export type UserResponse = DataResponse<User>;
 
 // #endregion
 
