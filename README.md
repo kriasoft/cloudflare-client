@@ -31,10 +31,6 @@ await cf.user(settings).get();
 // https://api.cloudflare.com/#user-api-tokens-verify-token
 await cf.userTokens(settings).verify();
 
-// Get DNS Record details
-// https://api.cloudflare.com/#dns-records-for-a-zone-dns-record-details
-await cf.dnsRecords(settings).get("xxx");
-
 // Find a single DNS Record matching the search parameters
 // https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
 await cf.dnsRecords(settings).find({ type: "A" });
@@ -42,6 +38,26 @@ await cf.dnsRecords(settings).find({ type: "A" });
 // Get the list of DNS Records for the target zone
 // https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
 await cf.dnsRecords(settings).findMany({ type: "A" });
+
+// Get DNS Record details
+// https://api.cloudflare.com/#dns-records-for-a-zone-dns-record-details
+await cf.dnsRecords(settings).get("xxx");
+
+// Create DNS record
+// https://api.cloudflare.com/#dns-records-for-a-zone-create-dns-record
+await cf.dnsRecords(settings).create({ type: "A", content: "127.0.0.1", ... });
+
+// Update DNS record
+// https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
+await cf.dnsRecords(settings).update({ id: "xxx", content: "127.0.0.1", ... });
+
+// Patch DNS record
+// https://api.cloudflare.com/#dns-records-for-a-zone-patch-dns-record
+await cf.dnsRecords(settings).patch({ id: "xxx", content: "127.0.0.1", ... });
+
+// Delete DNS record
+// https://api.cloudflare.com/#dns-records-for-a-zone-delete-dns-record
+await cf.dnsRecords(settings).delete(id);
 ```
 
 ## Source Code

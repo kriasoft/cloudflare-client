@@ -1,13 +1,9 @@
 /* SPDX-FileCopyrightText: 2022-present Kriasoft */
 /* SPDX-License-Identifier: MIT */
 
-import { baseUrl, createFetch, type Res } from "./fetch.js";
+import { baseUrl, createFetch, type Credentials, type Res } from "./fetch.js";
 
 // #region TypeScript
-
-type Options = {
-  accessToken: string;
-};
 
 export type User = {
   id: string;
@@ -39,11 +35,10 @@ export type Organization = {
 };
 
 export type UserResponse = Res<User>;
-export type UserOptions = Options;
 
 // #endregion
 
-export function user(options: Options) {
+export function user(credentials: Credentials) {
   const url = `${baseUrl}/user`;
 
   return {
@@ -54,7 +49,7 @@ export function user(options: Options) {
     get: createFetch<never, UserResponse>({
       method: "GET",
       url,
-      accessToken: options.accessToken,
+      credentials,
     }) as () => Promise<UserResponse>,
   };
 }

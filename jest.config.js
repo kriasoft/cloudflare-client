@@ -34,5 +34,5 @@ export default {
 
   extensionsToTreatAsEsm: [".ts"],
 
-  setupFiles: ["dotenv/config"],
+  setupFiles: ["./scripts/setup.js", "dotenv/config"],
 };

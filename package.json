@@ -1,6 +1,6 @@
 {
   "name": "cloudflare-client",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "packageManager": "yarn@4.0.0-rc.9",
   "description": "Universal HTTP client for Cloudflare API",
   "license": "MIT",

@@ -3,13 +3,22 @@
 
 // #region TypeScript
 
-export type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
+export type HttpMethod = "GET" | "PUT" | "POST" | "PATCH" | "DELETE";
+
+export type Credentials =
+  | {
+      accessToken: string;
+    }
+  | {
+      authKey: string;
+      authEmail: string;
+    };
 
 type Options<P> = {
   method: HttpMethod;
   url: ((params: P) => string) | string;
-  accessToken: string;
   single?: true;
+  credentials: Credentials;
 };
 
 export type Params = Record<string, string | number | unknown> | string;
@@ -49,7 +58,7 @@ export function createFetch<T extends Params, R>(options: Options<T>) {
       typeof options.url === "function" ? options.url(params) : options.url
     );
 
-    if (typeof params === "object") {
+    if (options.method === "GET" && typeof params === "object") {
       Object.keys(params).forEach((key) => {
         url.searchParams.set(key, String(params[key]));
       });
@@ -57,10 +66,20 @@ export function createFetch<T extends Params, R>(options: Options<T>) {
 
     const res = await fetch(url, {
       method: options.method,
-      headers: {
-        [`Content-Type`]: `application/json`,
-        [`Authorization`]: `Bearer ${options.accessToken}`,
-      },
+      headers:
+        "accessToken" in options.credentials
+          ? {
+              [`Content-Type`]: `application/json`,
+              [`Authorization`]: `Bearer ${options.credentials.accessToken}`,
+            }
+          : {
+              [`Content-Type`]: `application/json`,
+              [`X-Auth-Key`]: options.credentials.authKey,
+              [`X-Auth-Email`]: options.credentials.authEmail,
+            },
+      ...((options.method === "POST" || options.method === "PATCH") && {
+        body: JSON.stringify(params),
+      }),
     });
 
     const body = await res.json();
