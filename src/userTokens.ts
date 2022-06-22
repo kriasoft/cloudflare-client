@@ -1,13 +1,9 @@
 /* SPDX-FileCopyrightText: 2022-present Kriasoft */
 /* SPDX-License-Identifier: MIT */
 
-import { baseUrl, createFetch, type Res } from "./fetch.js";
+import { baseUrl, createFetch, type Credentials, type Res } from "./fetch.js";
 
 // #region TypeScript
-
-type Options = {
-  accessToken: string;
-};
 
 export type VerifyResponse = Res<{
   id: string;
@@ -42,11 +38,10 @@ export type Token = {
 };
 
 export type TokenResponse = Res<Token>;
-export type UserTokensOptions = Options;
 
 // #endregion
 
-export function userTokens(options: Options) {
+export function userTokens(credentials: Credentials) {
   const url = `${baseUrl}/user/tokens`;
 
   return {
@@ -57,7 +52,7 @@ export function userTokens(options: Options) {
     verify: createFetch<never, VerifyResponse>({
       method: "GET",
       url: `${url}/verify`,
-      accessToken: options.accessToken,
+      credentials,
     }) as () => Promise<VerifyResponse>,
 
     /**
@@ -67,7 +62,7 @@ export function userTokens(options: Options) {
     get: createFetch<string, TokenResponse>({
       method: "GET",
       url: (id) => `${url}/${id}`,
-      accessToken: options.accessToken,
+      credentials,
     }) as (id: string) => Promise<TokenResponse>,
   };
 }

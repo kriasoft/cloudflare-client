@@ -1,13 +1,21 @@
 /* SPDX-FileCopyrightText: 2022-present Kriasoft */
 /* SPDX-License-Identifier: MIT */
 
-import { baseUrl, createFetch, type ListRes, type Res } from "./fetch.js";
+import {
+  baseUrl,
+  createFetch,
+  type Credentials,
+  type ListRes,
+  type Res,
+} from "./fetch.js";
 
 // #region TypeScript
 
-type Options = {
+export type Zone = {
+  /**
+   * DNS zone identity
+   */
   zoneId: string;
-  accessToken: string;
 };
 
 export type DnsRecordType =
@@ -53,7 +61,7 @@ type FindOptions = {
   per_page?: number;
   /**
    * DNS record content
-   * @example "192.0.2.1"
+   * @example "127.0.0.1"
    */
   content?: string;
   /**
@@ -71,13 +79,67 @@ type FindOptions = {
   direction?: "asc" | "desc";
 };
 
-export type DnsRecord = {
-  id: string;
+type DnsRecordInput = {
+  /**
+   * DNS record type
+   * @example "A"
+   */
   type: DnsRecordType;
+  /**
+   * DNS record name (`max length: 255`)
+   * @example "example.com"
+   */
   name: string;
+  /**
+   * DNS record content
+   * @example "127.0.0.1"
+   */
+  content: string;
+  /**
+   * Time to live, in seconds, of the DNS record.
+   * Must be between `60` and `86400`, or `1` for `automatic`.
+   * @example 3600
+   */
+  ttl: number;
+  /**
+   * Required for MX, SRV and URI records; unused by other record types.
+   * Records with lower priorities are preferred.
+   * @example: 10
+   */
+  priority?: number;
+  /**
+   * Whether the record is receiving the performance and security benefits of Cloudflare
+   */
+  proxied?: boolean;
+};
+
+export type DnsRecord = {
+  /**
+   * DNS record identifier
+   */
+  id: string;
+  /**
+   * DNS record type
+   */
+  type: DnsRecordType;
+  /**
+   * DNS record name
+   * @example "example.com"
+   */
+  name: string;
+  /**
+   * DNS record content
+   * @example "127.0.0.1"
+   */
   content: string;
   proxiable: boolean;
+  /**
+   * Whether the record is receiving the performance and security benefits of Cloudflare
+   */
   proxied: boolean;
+  /**
+   * Time to live, in seconds, of the DNS record.
+   */
   ttl: number;
   locked: boolean;
   zone_id: string;
@@ -95,12 +157,17 @@ export type DnsRecord = {
 
 export type DnsRecordResponse = Res<DnsRecord>;
 export type DnsRecordsResponse = ListRes<DnsRecord>;
-export type DnsRecordsOptions = Options;
+export type DeleteDnsRecordResponse = {
+  result: {
+    id: string;
+  } | null;
+};
 
 // #endregion
 
-export function dnsRecords(options: Options) {
-  const url = `${baseUrl}/zones/${options.zoneId}/dns_records`;
+export function dnsRecords(options: Zone & Credentials) {
+  const { zoneId, ...credentials } = options;
+  const url = `${baseUrl}/zones/${zoneId}/dns_records`;
 
   return {
     /**
@@ -110,7 +177,7 @@ export function dnsRecords(options: Options) {
     get: createFetch<string, DnsRecordResponse>({
       method: "GET",
       url: (id) => `${url}/${id}`,
-      accessToken: options.accessToken,
+      credentials,
     }) as (id: string) => Promise<DnsRecordResponse>,
 
     /**
@@ -120,9 +187,9 @@ export function dnsRecords(options: Options) {
     find: createFetch<FindOptions, DnsRecordResponse>({
       method: "GET",
       url,
-      accessToken: options.accessToken,
+      credentials,
       single: true,
-    }),
+    }) as (params?: FindOptions) => Promise<DnsRecordResponse>,
 
     /**
      * List DNS Records
@@ -131,25 +198,50 @@ export function dnsRecords(options: Options) {
     findMany: createFetch<FindOptions, DnsRecordsResponse>({
       method: "GET",
       url,
-      accessToken: options.accessToken,
-    }),
+      credentials,
+    }) as (params?: FindOptions) => Promise<DnsRecordsResponse>,
 
-    create: createFetch({
+    /**
+     * Create DNS Record
+     * @see https://api.cloudflare.com/#dns-records-for-a-zone-create-dns-record
+     */
+    create: createFetch<DnsRecordInput, DnsRecordResponse>({
       method: "POST",
       url,
-      accessToken: options.accessToken,
+      credentials,
     }),
 
-    update: createFetch({
+    /**
+     * Update DNS Record
+     * @see https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
+     */
+    update: createFetch<DnsRecordInput & { id: string }, DnsRecordResponse>({
+      method: "PUT",
+      url,
+      credentials,
+    }),
+
+    /**
+     * Patch DNS Record
+     * @see https://api.cloudflare.com/#dns-records-for-a-zone-patch-dns-record
+     */
+    patch: createFetch<
+      Partial<DnsRecordInput> & { id: string },
+      DnsRecordResponse
+    >({
       method: "PATCH",
       url,
-      accessToken: options.accessToken,
+      credentials,
     }),
 
-    delete: createFetch({
+    /**
+     * Delete DNS Record
+     * @see https://api.cloudflare.com/#dns-records-for-a-zone-delete-dns-record
+     */
+    delete: createFetch<string, DeleteDnsRecordResponse>({
       method: "DELETE",
-      url,
-      accessToken: options.accessToken,
-    }),
+      url: (id) => `${url}/${id}`,
+      credentials,
+    }) as (id: string) => Promise<DeleteDnsRecordResponse>,
   };
 }
