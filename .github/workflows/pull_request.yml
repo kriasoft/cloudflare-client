@@ -7,12 +7,18 @@ on: [pull_request]
 
 env:
   GOOGLE_CLOUD_CREDENTIALS: ${{ secrets.GOOGLE_CLOUD_CREDENTIALS }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
       - uses: actions/cache@v3
         with:
           path: |
@@ -23,8 +29,10 @@ jobs:
           restore-keys: ${{ runner.os }}-yarn-
 
       # Install dependencies
-      - run: yarn config set enableGlobalCache false
-      - run: yarn install
+      - name: yarn install
+        run: |
+          yarn config set enableGlobalCache false
+          yarn install
 
       # Analyze code for potential problems
       - run: yarn prettier --check .

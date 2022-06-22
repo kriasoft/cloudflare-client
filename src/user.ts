@@ -9,7 +9,7 @@ type Options = {
   accessToken: string;
 };
 
-type User = {
+export type User = {
   id: string;
   email: string;
   first_name: string | null;
@@ -30,7 +30,7 @@ type User = {
   suspended: boolean;
 };
 
-type Organization = {
+export type Organization = {
   id: string;
   name: string;
   permissions: string[];
@@ -38,11 +38,12 @@ type Organization = {
   status: string;
 };
 
-type UserResponse = Res<User>;
+export type UserResponse = Res<User>;
+export type UserOptions = Options;
 
 // #endregion
 
-function user(options: Options) {
+export function user(options: Options) {
   const url = `${baseUrl}/user`;
 
   return {
@@ -57,5 +58,3 @@ function user(options: Options) {
     }) as () => Promise<UserResponse>,
   };
 }
-
-export { user };

@@ -3,23 +3,24 @@
 
 import * as cf from "./user.js";
 
-test("user({ accessToken }).get()", async () => {
-  const user = cf.user({
-    accessToken: process.env.CLOUDFLARE_API_TOKEN as string,
-  });
+const options = { accessToken: process.env.CLOUDFLARE_API_TOKEN as string };
+
+test("user(options).get()", async () => {
+  const res = await cf.user(options).get();
 
   // Anonymize the response
-  const res = await user.get();
-  res.result.id = res.result.id?.replace(/\w/g, "x");
-  res.result.email = res.result.email
-    .replace(/^.*@/, "email@")
-    .replace(/@.*$/, "@example.com");
-  res.result.organizations.length = 0;
-  res.result.betas.length = 0;
-  res.result.created_on = res.result.created_on.replace(/\d/g, "0");
-  res.result.modified_on = res.result.modified_on.replace(/\d/g, "0");
-  res.result.username =
-    typeof res.result.username === "string" ? "username" : null;
+  if (res.result) {
+    res.result.id = res.result.id?.replace(/\w/g, "x");
+    res.result.email = res.result.email
+      .replace(/^.*@/, "email@")
+      .replace(/@.*$/, "@example.com");
+    res.result.organizations.length = 0;
+    res.result.betas.length = 0;
+    res.result.created_on = res.result.created_on.replace(/\d/g, "0");
+    res.result.modified_on = res.result.modified_on.replace(/\d/g, "0");
+    res.result.username =
+      typeof res.result.username === "string" ? "username" : null;
+  }
 
   expect(res).toMatchInlineSnapshot(`
     Object {

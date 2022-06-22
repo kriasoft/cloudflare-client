@@ -26,5 +26,5 @@
     "**/.yarn": true,
     "**/.pnp.*": true
   },
-  "cSpell.ignoreWords": ["endregion", "proxiable", "proxied"]
+  "cSpell.ignoreWords": ["endregion", "proxiable", "proxied", "zipcode"]
 }

@@ -3,44 +3,57 @@
 
 // #region TypeScript
 
-type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
+export type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
 
-type Options = {
+type Options<P> = {
   method: HttpMethod;
-  url: string;
+  url: ((params: P) => string) | string;
   accessToken: string;
+  single?: true;
 };
 
-type Params = Record<string, string | number | unknown> | string;
+export type Params = Record<string, string | number | unknown> | string;
 
-type Message = {
+export type Message = {
   code: string;
   message: string;
   type?: string;
 };
 
-type Res<T> = {
+export interface Res<T> {
   success: boolean;
   errors: Message[];
   messages: Message[];
-  result: T;
-};
+  result: T | null;
+}
+
+export interface ListRes<T> extends Res<T[]> {
+  result_info: {
+    count: number;
+    page: number;
+    per_page: number;
+    total_count: number;
+    total_pages: number;
+  };
+}
+
+export type CreateFetchOptions<P> = Options<P>;
 
 // #endregion
 
-const baseUrl = `https://api.cloudflare.com/client/v4`;
+export const baseUrl = `https://api.cloudflare.com/client/v4`;
 
-function createFetch<T extends Params, R>(options: Options) {
+export function createFetch<T extends Params, R>(options: Options<T>) {
   const fetchFn = async function (params: T): Promise<R> {
-    const url = new URL(options.url);
+    const url = new URL(
+      typeof options.url === "function" ? options.url(params) : options.url
+    );
 
     if (typeof params === "object") {
       Object.keys(params).forEach((key) => {
         url.searchParams.set(key, String(params[key]));
       });
     }
-
-    console.log(url.toString(), options.accessToken);
 
     const res = await fetch(url, {
       method: options.method,
@@ -50,12 +63,17 @@ function createFetch<T extends Params, R>(options: Options) {
       },
     });
 
-    return res.json();
+    const body = await res.json();
+
+    if (options.single && Array.isArray(body.result)) {
+      body.result = body.result[0];
+      delete body.result_info;
+    }
+
+    return body;
   };
 
   Object.defineProperty(fetchFn, "name", { value: options.method });
 
   return fetchFn;
 }
-
-export { baseUrl, createFetch, type Res };

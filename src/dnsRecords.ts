@@ -1,7 +1,7 @@
 /* SPDX-FileCopyrightText: 2022-present Kriasoft */
 /* SPDX-License-Identifier: MIT */
 
-import { baseUrl, createFetch, type Res } from "./fetch.js";
+import { baseUrl, createFetch, type ListRes, type Res } from "./fetch.js";
 
 // #region TypeScript
 
@@ -9,6 +9,26 @@ type Options = {
   zoneId: string;
   accessToken: string;
 };
+
+export type DnsRecordType =
+  | "A"
+  | "AAAA"
+  | "CNAME"
+  | "HTTPS"
+  | "TXT"
+  | "SRV"
+  | "LOC"
+  | "MX"
+  | "NS"
+  | "CERT"
+  | "DNSKEY"
+  | "DS"
+  | "NAPTR"
+  | "SMIMEA"
+  | "SSHFP"
+  | "SVCB"
+  | "TLSA"
+  | "URI";
 
 type FindOptions = {
   /**
@@ -40,7 +60,7 @@ type FindOptions = {
    * DNS record type
    * @example "A"
    */
-  type?: RecordType;
+  type?: DnsRecordType;
   /**
    * DNS record proxied status
    */
@@ -51,29 +71,9 @@ type FindOptions = {
   direction?: "asc" | "desc";
 };
 
-type RecordType =
-  | "A"
-  | "AAAA"
-  | "CNAME"
-  | "HTTPS"
-  | "TXT"
-  | "SRV"
-  | "LOC"
-  | "MX"
-  | "NS"
-  | "CERT"
-  | "DNSKEY"
-  | "DS"
-  | "NAPTR"
-  | "SMIMEA"
-  | "SSHFP"
-  | "SVCB"
-  | "TLSA"
-  | "URI";
-
-type DnsRecord = {
+export type DnsRecord = {
   id: string;
-  type: RecordType;
+  type: DnsRecordType;
   name: string;
   content: string;
   proxiable: boolean;
@@ -93,8 +93,9 @@ type DnsRecord = {
   data?: Record<string, unknown>;
 };
 
-type DnsRecordResponse = Res<DnsRecord>;
-type DnsRecordsResponse = Res<DnsRecord[]>;
+export type DnsRecordResponse = Res<DnsRecord>;
+export type DnsRecordsResponse = ListRes<DnsRecord>;
+export type DnsRecordsOptions = Options;
 
 // #endregion
 
@@ -108,9 +109,20 @@ export function dnsRecords(options: Options) {
      */
     get: createFetch<string, DnsRecordResponse>({
       method: "GET",
-      url: `${url}/:id`,
+      url: (id) => `${url}/${id}`,
       accessToken: options.accessToken,
     }) as (id: string) => Promise<DnsRecordResponse>,
+
+    /**
+     * Find DNS Record
+     * @see https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
+     */
+    find: createFetch<FindOptions, DnsRecordResponse>({
+      method: "GET",
+      url,
+      accessToken: options.accessToken,
+      single: true,
+    }),
 
     /**
      * List DNS Records
