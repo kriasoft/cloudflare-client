@@ -3,7 +3,13 @@
 
 // #region TypeScript
 
-export type HttpMethod = "GET" | "PUT" | "POST" | "PATCH" | "DELETE";
+export enum HttpMethod {
+  GET = "GET",
+  PUT = "PUT",
+  POST = "POST",
+  PATCH = "PATCH",
+  DELETE = "DELETE",
+}
 
 export type Credentials =
   | {
@@ -14,12 +20,22 @@ export type Credentials =
       authEmail: string;
     };
 
-type Options<P> = {
+type FetchOptions = {
   method: HttpMethod;
-  url: ((params: P) => string) | string;
+  url: URL | string;
+  searchParams?: Record<string, unknown>;
+  contentType?: string;
+  accept?: string;
+  body?: BodyInit;
   single?: true;
+  type?: "text" | "json" | "binary";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  notFoundResponse?: any;
   credentials: Credentials;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FetchInit = (...args: ReadonlyArray<any>) => FetchOptions;
 
 export type Params = Record<string, string | number | unknown> | string;
 
@@ -49,53 +65,72 @@ export interface ListResponse<T> extends DataResponse<T[]> {
   };
 }
 
-export type CreateFetchOptions<P> = Options<P>;
+export interface CursorResponse<T> extends DataResponse<T[]> {
+  result_info: {
+    count: number;
+    cursor: string;
+  };
+}
 
 // #endregion
 
 export const baseUrl = `https://api.cloudflare.com/client/v4`;
 
-export function createFetch<T extends Params, R>(options: Options<T>) {
-  const fetchFn = async function (params: T): Promise<R> {
-    const url = new URL(
-      typeof options.url === "function" ? options.url(params) : options.url
-    );
+export function createFetch<I extends FetchInit>(
+  init: I
+): {
+  json: <R>() => (...args: Parameters<I>) => Promise<R>;
+} {
+  return {
+    json() {
+      return async function (...args: Parameters<I>) {
+        const { searchParams, credentials, ...options } = init(...args);
+        const url = new URL(options.url);
 
-    if (options.method === "GET" && typeof params === "object") {
-      Object.keys(params).forEach((key) => {
-        url.searchParams.set(key, String(params[key]));
-      });
-    }
-
-    const res = await fetch(url, {
-      method: options.method,
-      headers:
-        "accessToken" in options.credentials
-          ? {
-              [`Content-Type`]: `application/json`,
-              [`Authorization`]: `Bearer ${options.credentials.accessToken}`,
+        // Append URL (search) arguments to the URL
+        if (typeof searchParams === "object") {
+          Object.keys(searchParams).forEach((key) => {
+            if (searchParams[key] !== undefined) {
+              url.searchParams.set(key, String(searchParams[key]));
             }
-          : {
-              [`Content-Type`]: `application/json`,
-              [`X-Auth-Key`]: options.credentials.authKey,
-              [`X-Auth-Email`]: options.credentials.authEmail,
-            },
-      ...((options.method === "POST" || options.method === "PATCH") && {
-        body: JSON.stringify(params),
-      }),
-    });
+          });
+        }
 
-    const body = await res.json();
+        const req = new Request(url, { method: options.method });
+        const contentType =
+          "contentType" in options ? options.contentType : "application/json";
 
-    if (options.single && Array.isArray(body.result)) {
-      body.result = body.result[0];
-      delete body.result_info;
-    }
+        if (contentType) {
+          req.headers.set("Content-Type", contentType);
+        }
 
-    return body;
+        // Set authentication header(s)
+        if ("accessToken" in credentials) {
+          req.headers.set("Authorization", `Bearer ${credentials.accessToken}`);
+        } else {
+          req.headers.set("X-Auth-Key", credentials.authKey);
+          req.headers.set("X-Auth-Email", credentials.authEmail);
+        }
+
+        // Make an HTTP request
+        const res = options.body
+          ? await fetch(new Request(req, { body: options.body }))
+          : await fetch(req);
+
+        if (res.status === 404 && "notFoundResponse" in options) {
+          return options.notFoundResponse;
+        }
+
+        const data =
+          options.type === "text" ? await res.text() : await res.json();
+
+        if (options.single && Array.isArray(data.result)) {
+          data.result = data.result[0];
+          delete data.result_info;
+        }
+
+        return data;
+      };
+    },
   };
-
-  Object.defineProperty(fetchFn, "name", { value: options.method });
-
-  return fetchFn;
 }

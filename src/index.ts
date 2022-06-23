@@ -2,5 +2,6 @@
 /* SPDX-License-Identifier: MIT */
 
 export * from "./dnsRecords.js";
+export * from "./kv.js";
 export * from "./user.js";
 export * from "./userTokens.js";
