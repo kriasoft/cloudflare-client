@@ -1,28 +1,15 @@
 /* SPDX-FileCopyrightText: 2022-present Kriasoft */
 /* SPDX-License-Identifier: MIT */
 
-import * as cf from "./user.js";
+import { user, type UserResponse } from "./user.js";
 
-const options = { accessToken: process.env.CLOUDFLARE_API_TOKEN as string };
+const credentials = {
+  accessToken: process.env.CLOUDFLARE_API_TOKEN as string,
+};
 
-test("user(options).get()", async () => {
-  const res = await cf.user(options).get();
-
-  // Anonymize the response
-  if (res.result) {
-    res.result.id = res.result.id?.replace(/\w/g, "x");
-    res.result.email = res.result.email
-      .replace(/^.*@/, "email@")
-      .replace(/@.*$/, "@example.com");
-    res.result.organizations.length = 0;
-    res.result.betas.length = 0;
-    res.result.created_on = res.result.created_on.replace(/\d/g, "0");
-    res.result.modified_on = res.result.modified_on.replace(/\d/g, "0");
-    res.result.username =
-      typeof res.result.username === "string" ? "username" : null;
-  }
-
-  expect(res).toMatchInlineSnapshot(`
+test("user(credentials).get()", async () => {
+  const res = await user(credentials).get();
+  expect(anonymize(res)).toMatchInlineSnapshot(`
     Object {
       "errors": Array [],
       "messages": Array [],
@@ -50,3 +37,23 @@ test("user(options).get()", async () => {
     }
   `);
 });
+
+function anonymize<T extends UserResponse | undefined>(res: T): T {
+  return (
+    res && {
+      ...res,
+      result: res.result && {
+        ...res.result,
+        id: res.result.id?.replace(/\w/g, "x"),
+        email: res.result.email
+          .replace(/^.*@/, "email@")
+          .replace(/@.*$/, "@example.com"),
+        organizations: res.result.organizations && [],
+        betas: res.result.betas && [],
+        created_on: res.result.created_on.replace(/\d/g, "0"),
+        modified_on: res.result.modified_on.replace(/\d/g, "0"),
+        username: res.result.username && "username",
+      },
+    }
+  );
+}

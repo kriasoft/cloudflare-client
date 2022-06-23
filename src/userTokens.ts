@@ -4,6 +4,7 @@
 import {
   baseUrl,
   createFetch,
+  HttpMethod,
   type Credentials,
   type DataResponse,
 } from "./fetch.js";
@@ -46,6 +47,10 @@ export type TokenResponse = DataResponse<Token>;
 
 // #endregion
 
+/**
+ * User API Tokens. Tokens that cab be used to access Cloudflare v4 APIs.
+ * @see https://api.cloudflare.com/#user-api-tokens-properties
+ */
 export function userTokens(credentials: Credentials) {
   const url = `${baseUrl}/user/tokens`;
 
@@ -54,20 +59,20 @@ export function userTokens(credentials: Credentials) {
      * Verify Token
      * @see https://api.cloudflare.com/#user-api-tokens-verify-token
      */
-    verify: createFetch<never, VerifyResponse>({
-      method: "GET",
+    verify: createFetch(() => ({
+      method: HttpMethod.GET,
       url: `${url}/verify`,
       credentials,
-    }) as () => Promise<VerifyResponse>,
+    })).json<VerifyResponse>(),
 
     /**
      * Token Details
      * @see https://api.cloudflare.com/#user-api-tokens-token-details
      */
-    get: createFetch<string, TokenResponse>({
-      method: "GET",
-      url: (id) => `${url}/${id}`,
+    get: createFetch((id: string) => ({
+      method: HttpMethod.GET,
+      url: `${url}/${id}`,
       credentials,
-    }) as (id: string) => Promise<TokenResponse>,
+    })).json<TokenResponse>(),
   };
 }

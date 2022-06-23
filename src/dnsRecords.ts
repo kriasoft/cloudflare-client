@@ -4,6 +4,7 @@
 import {
   baseUrl,
   createFetch,
+  HttpMethod,
   type Credentials,
   type DataResponse,
   type ListResponse,
@@ -174,74 +175,76 @@ export function dnsRecords(options: Zone & Credentials) {
      * DNS Record Details
      * @see https://api.cloudflare.com/#dns-records-for-a-zone-dns-record-details
      */
-    get: createFetch<string, DnsRecordResponse>({
-      method: "GET",
-      url: (id) => `${url}/${id}`,
+    get: createFetch((id: string) => ({
+      method: HttpMethod.GET,
+      url: `${url}/${id}`,
       credentials,
-    }) as (id: string) => Promise<DnsRecordResponse>,
+    })).json<DnsRecordResponse>(),
 
     /**
      * Find DNS Record
      * @see https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
      */
-    find: createFetch<FindOptions, DnsRecordResponse>({
-      method: "GET",
+    find: createFetch((params?: FindOptions) => ({
+      method: HttpMethod.GET,
       url,
+      searchParams: params,
       credentials,
       single: true,
-    }) as (params?: FindOptions) => Promise<DnsRecordResponse>,
+    })).json<DnsRecordResponse>(),
 
     /**
      * List DNS Records
      * @see https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
      */
-    findMany: createFetch<FindOptions, DnsRecordsResponse>({
-      method: "GET",
+    findMany: createFetch((params?: FindOptions) => ({
+      method: HttpMethod.GET,
       url,
+      searchParams: params,
       credentials,
-    }) as (params?: FindOptions) => Promise<DnsRecordsResponse>,
+    })).json<DnsRecordsResponse>(),
 
     /**
      * Create DNS Record
      * @see https://api.cloudflare.com/#dns-records-for-a-zone-create-dns-record
      */
-    create: createFetch<DnsRecordInput, DnsRecordResponse>({
-      method: "POST",
+    create: createFetch((input: DnsRecordInput) => ({
+      method: HttpMethod.POST,
       url,
+      body: JSON.stringify(input),
       credentials,
-    }),
+    })).json<DnsRecordResponse>(),
 
     /**
      * Update DNS Record
      * @see https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
      */
-    update: createFetch<DnsRecordInput & { id: string }, DnsRecordResponse>({
-      method: "PUT",
-      url,
+    update: createFetch((id: string, input: DnsRecordInput) => ({
+      method: HttpMethod.PUT,
+      url: `${url}/${id}`,
+      body: JSON.stringify(input),
       credentials,
-    }),
+    })).json<DnsRecordResponse>(),
 
     /**
      * Patch DNS Record
      * @see https://api.cloudflare.com/#dns-records-for-a-zone-patch-dns-record
      */
-    patch: createFetch<
-      Partial<DnsRecordInput> & { id: string },
-      DnsRecordResponse
-    >({
-      method: "PATCH",
-      url,
+    patch: createFetch((id: string, input: DnsRecordInput) => ({
+      method: HttpMethod.PATCH,
+      url: `${url}/${id}`,
+      body: JSON.stringify(input),
       credentials,
-    }),
+    })).json<DnsRecordResponse>(),
 
     /**
      * Delete DNS Record
      * @see https://api.cloudflare.com/#dns-records-for-a-zone-delete-dns-record
      */
-    delete: createFetch<string, DeleteDnsRecordResponse>({
-      method: "DELETE",
-      url: (id) => `${url}/${id}`,
+    delete: createFetch((id: string) => ({
+      method: HttpMethod.DELETE,
+      url: `${url}/${id}`,
       credentials,
-    }) as (id: string) => Promise<DeleteDnsRecordResponse>,
+    })).json<DeleteDnsRecordResponse>(),
   };
 }

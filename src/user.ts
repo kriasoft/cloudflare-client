@@ -4,6 +4,7 @@
 import {
   baseUrl,
   createFetch,
+  HttpMethod,
   type Credentials,
   type DataResponse,
 } from "./fetch.js";
@@ -43,6 +44,10 @@ export type UserResponse = DataResponse<User>;
 
 // #endregion
 
+/**
+ * The currently logged in / authenticated User
+ * @see https://api.cloudflare.com/#user-properties
+ */
 export function user(credentials: Credentials) {
   const url = `${baseUrl}/user`;
 
@@ -51,10 +56,10 @@ export function user(credentials: Credentials) {
      * The currently logged in/authenticated user
      * @see https://api.cloudflare.com/#user-properties
      */
-    get: createFetch<never, UserResponse>({
-      method: "GET",
+    get: createFetch(() => ({
+      method: HttpMethod.GET,
       url,
       credentials,
-    }) as () => Promise<UserResponse>,
+    })).json<UserResponse>(),
   };
 }
