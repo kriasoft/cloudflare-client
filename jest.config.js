@@ -35,4 +35,6 @@ export default {
   extensionsToTreatAsEsm: [".ts"],
 
   setupFiles: ["./scripts/setup.js", "dotenv/config"],
+
+  testTimeout: 15000,
 };

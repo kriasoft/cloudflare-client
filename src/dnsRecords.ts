@@ -1,14 +1,7 @@
 /* SPDX-FileCopyrightText: 2022-present Kriasoft */
 /* SPDX-License-Identifier: MIT */
 
-import {
-  baseUrl,
-  createFetch,
-  HttpMethod,
-  type Credentials,
-  type DataResponse,
-  type ListResponse,
-} from "./fetch.js";
+import { baseUrl, createFetch, HttpMethod, type Credentials } from "./fetch.js";
 
 // #region TypeScript
 
@@ -51,6 +44,10 @@ type FindOptions = {
    */
   name?: string;
   /**
+   * Field to order records by
+   */
+  order?: "type" | "name" | "content" | "ttl" | "proxied";
+  /**
    * Page number of paginated results
    * @default 1
    */
@@ -59,7 +56,7 @@ type FindOptions = {
    * Number of DNS records per page (`min: 5`, `max: 5000`)
    * @default 100
    */
-  per_page?: number;
+  perPage?: number;
   /**
    * DNS record content
    * @example "127.0.0.1"
@@ -156,16 +153,12 @@ export type DnsRecord = {
   data?: Record<string, unknown>;
 };
 
-export type DnsRecordResponse = DataResponse<DnsRecord>;
-export type DnsRecordsResponse = ListResponse<DnsRecord>;
-export type DeleteDnsRecordResponse = {
-  result: {
-    id: string;
-  } | null;
-};
-
 // #endregion
 
+/**
+ * DNS Records for Zone
+ * @see https://api.cloudflare.com/#dns-records-for-a-zone-properties
+ */
 export function dnsRecords(options: Zone & Credentials) {
   const { zoneId, ...credentials } = options;
   const url = `${baseUrl}/zones/${zoneId}/dns_records`;
@@ -179,30 +172,28 @@ export function dnsRecords(options: Zone & Credentials) {
       method: HttpMethod.GET,
       url: `${url}/${id}`,
       credentials,
-    })).json<DnsRecordResponse>(),
-
-    /**
-     * Find DNS Record
-     * @see https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
-     */
-    find: createFetch((params?: FindOptions) => ({
-      method: HttpMethod.GET,
-      url,
-      searchParams: params,
-      credentials,
-      single: true,
-    })).json<DnsRecordResponse>(),
+    })).response<DnsRecord>(),
 
     /**
      * List DNS Records
      * @see https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
      */
-    findMany: createFetch((params?: FindOptions) => ({
+    find: createFetch((params?: FindOptions) => ({
       method: HttpMethod.GET,
       url,
-      searchParams: params,
+      searchParams: {
+        match: params?.match,
+        name: params?.name,
+        order: params?.order,
+        page: params?.page,
+        per_page: params?.perPage,
+        content: params?.content,
+        type: params?.type,
+        proxied: params?.proxied,
+        direction: params?.direction,
+      },
       credentials,
-    })).json<DnsRecordsResponse>(),
+    })).query<DnsRecord>(),
 
     /**
      * Create DNS Record
@@ -213,29 +204,29 @@ export function dnsRecords(options: Zone & Credentials) {
       url,
       body: JSON.stringify(input),
       credentials,
-    })).json<DnsRecordResponse>(),
+    })).response<DnsRecord>(),
 
     /**
-     * Update DNS Record
+     * Replace DNS Record
      * @see https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
      */
-    update: createFetch((id: string, input: DnsRecordInput) => ({
+    replace: createFetch((id: string, input: DnsRecordInput) => ({
       method: HttpMethod.PUT,
       url: `${url}/${id}`,
       body: JSON.stringify(input),
       credentials,
-    })).json<DnsRecordResponse>(),
+    })).response<DnsRecord>(),
 
     /**
-     * Patch DNS Record
+     * Update DNS Record
      * @see https://api.cloudflare.com/#dns-records-for-a-zone-patch-dns-record
      */
-    patch: createFetch((id: string, input: DnsRecordInput) => ({
+    update: createFetch((id: string, input: DnsRecordInput) => ({
       method: HttpMethod.PATCH,
       url: `${url}/${id}`,
       body: JSON.stringify(input),
       credentials,
-    })).json<DnsRecordResponse>(),
+    })).response<DnsRecord>(),
 
     /**
      * Delete DNS Record
@@ -245,6 +236,6 @@ export function dnsRecords(options: Zone & Credentials) {
       method: HttpMethod.DELETE,
       url: `${url}/${id}`,
       credentials,
-    })).json<DeleteDnsRecordResponse>(),
+    })).response<{ id: string }>(),
   };
 }
