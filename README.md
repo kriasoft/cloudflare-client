@@ -11,6 +11,8 @@ based on [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
 that works in Node.js, browser, and CF Workers environment. Optimized for a good
 developer experience and minimal code with zero dependencies supporting tree-shaking.
 
+## Getting Started
+
 ```bash
 # Install using NPM
 $ npm install cloudflare-client --save
@@ -19,48 +21,216 @@ $ npm install cloudflare-client --save
 $ yarn add cloudflare-client
 ```
 
-## Usage Example
+Once the library is installed, you can cherry pick and configure individual
+Cloudflare API endpoints that you need. If you bundle your code (e.g. with
+Rollup), only the selected modules will be included into the application bundle.
 
 ```ts
-import * as cf from "cloudflare-client";
+import * as Cloudflare from "cloudflare-client";
 
-const settings = { zoneId: "xxx", accessToken: "<CLOUDFLARE_API_TOKEN>" };
+// EXAMPLE 1:
+//   Initialize an HTTP client for managing Cloudflare DNS
+//   records using API token for authentication
+const dnsRecords = Cloudflare.dnsRecords({
+  zoneId: "<CLOUDFLARE_ZONE_ID>",
+  accessToken: "<CLOUDFLARE_API_TOKEN>",
+});
 
-// Get the currently logged in / authenticated user
+// EXAMPLE 2:
+//   Initialize an HTTP client for managing Cloudflare Workers
+//   KV store using API key and email for authentication
+const kv = Cloudflare.kv({
+  accountId: "<CLOUDFLARE_ZONE_ID>",
+  authKey: "<CLOUDFLARE_AUTH_KEY>",
+  authEmail: "<CLOUDFLARE_AUTH_EMAIL>",
+});
+```
+
+## User
+
+```ts
+// Initialize an HTTP client for the `user` API endpoint
+// using an API token for authentication
+const user = Cloudflare.user({ accessToken: "xxx" });
+
+// Fetch the currently logged in / authenticated user details
 // https://api.cloudflare.com/#user-user-details
-await cf.user(settings).get();
+const userDetails = await user.get();
+// => {
+//   id: "7c5dae5552338874e5053f2534d2767a",
+//   email: "user@example.com",
+//   ...
+// }
+```
+
+## User Tokens
+
+```ts
+// Initialize an HTTP client for the `userTokens` API endpoint
+// using an API token for authentication
+const userTokens = Cloudflare.userTokens({ accessToken: "xxx" });
 
 // Verify the user's token
 // https://api.cloudflare.com/#user-api-tokens-verify-token
-await cf.userTokens(settings).verify();
+const token = await userTokens.verify();
+// => {
+//   id: "ed17574386854bf78a67040be0a770b0",
+//   status: "active"
+// }
+```
 
-// Find a single DNS Record matching the search parameters
-// https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
-await cf.dnsRecords(settings).find({ type: "A" });
+```ts
+// Initialize an HTTP client for the `userTokens` API endpoint
+// using an auth key and email
+const userTokens = Cloudflare.userTokens({ authKey: "xxx", authEmail: "xxx" });
 
-// Get the list of DNS Records for the target zone
-// https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
-await cf.dnsRecords(settings).findMany({ type: "A" });
+// Get token details
+// https://api.cloudflare.com/#user-api-tokens-token-details
+const token = await userTokens.get("ed17574386854bf78a67040be0a770b0");
+// => {
+//   id: "ed17574386854bf78a67040be0a770b0",
+//   name: "My Token",
+//   status: "active",
+//   policies: [...],
+//   ...
+// }
+```
 
-// Get DNS Record details
+## DNS Records
+
+```ts
+// Initialize an HTTP client for managing DNS records
+// within the target zone using API token for authentication
+const dnsRecords = Cloudflare.dnsRecords({ zoneId: "xxx", accessToken: "xxx" });
+```
+
+```ts
+// Find all DNS records of type "A"
+const records = await dnsRecords.find({ type: "A" }).all();
+
+// Find the first DNS record with the specified name
+const record = await dnsRecords.find({ type: "A", name: "test" }).first();
+// => {
+//  id: "372e67954025e0ba6aaa6d586b9e0b59",
+//  type: "A",
+//  name: "test.example.com",
+//  content: "192.0.2.1",
+//  ...
+// }
+```
+
+```ts
+// Fetch the list of DNS records and iterate through the result set using `for await`
+const records = await dnsRecords.find({ type: "A" });
+
+for await (const record of records) {
+  console.log(record);
+}
+```
+
+```ts
+// Get a specific DNS record by its ID
 // https://api.cloudflare.com/#dns-records-for-a-zone-dns-record-details
-await cf.dnsRecords(settings).get("xxx");
+const record = await dnsRecords.get("372e67954025e0ba6aaa6d586b9e0b59");
 
-// Create DNS record
+// Create a new DNS record
 // https://api.cloudflare.com/#dns-records-for-a-zone-create-dns-record
-await cf.dnsRecords(settings).create({ type: "A", content: "127.0.0.1", ... });
+const record = await dnsRecords.create({
+  type: "A",
+  name: "test.example.com",
+  content: "192.0.2.1",
+  proxied: true,
+});
+
+// Replace DNS record
+// https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
+const record = await dnsRecords.replace("372e67954025e0ba6aaa6d586b9e0b59", {
+  type: "A",
+  name: "test.example.com",
+  content: "192.0.2.1",
+  proxied: true,
+});
 
 // Update DNS record
-// https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
-await cf.dnsRecords(settings).update({ id: "xxx", content: "127.0.0.1", ... });
-
-// Patch DNS record
 // https://api.cloudflare.com/#dns-records-for-a-zone-patch-dns-record
-await cf.dnsRecords(settings).patch({ id: "xxx", content: "127.0.0.1", ... });
+const record = await dnsRecords.update("372e67954025e0ba6aaa6d586b9e0b59", {
+  proxied: false,
+});
 
 // Delete DNS record
 // https://api.cloudflare.com/#dns-records-for-a-zone-delete-dns-record
-await cf.dnsRecords(settings).delete(id);
+await dnsRecords.delete("372e67954025e0ba6aaa6d586b9e0b59");
+```
+
+## Workers KV
+
+```ts
+// Initialize an HTTP client for managing CF Workers KV store
+const kv = Cloudflare.kv({
+  accountId: "xxx",
+  authKey: "xxx",
+  authEmail: "xxx",
+});
+```
+
+#### KV Namespaces
+
+```ts
+// Fetch the list of all KV namespaces
+// https://api.cloudflare.com/#workers-kv-namespace-list-namespaces
+const namespaces = await kv.find().all();
+
+// Create a new namespace named "Example"
+// https://api.cloudflare.com/#workers-kv-namespace-create-a-namespace
+const ns = await kv.create("Example");
+// => {
+//   id: "0f2ac74b498b48028cb68387c421e279",
+//   title: "Example",
+//   supports_url_encoding: true
+// }
+
+// Update/rename a namespace
+// https://api.cloudflare.com/#workers-kv-namespace-rename-a-namespace
+await kv.update("0f2ac74b498b48028cb68387c421e279", "New Name");
+
+// Delete a namespace
+// https://api.cloudflare.com/#workers-kv-namespace-remove-a-namespace
+await kv.delete("0f2ac74b498b48028cb68387c421e279");
+```
+
+#### Key-Value Pairs
+
+```ts
+// Initialize the API endpoint client for managing key-value pairs
+const ns = kv.namespace("0f2ac74b498b48028cb68387c421e279");
+
+// Fetch the list of all the keys
+const keys = await ns.keys().all();
+
+// Fetch the list of all the keys prefixed "example"
+const keys = await ns.keys({ prefix: "example" }).all();
+
+// Create or update a key-value pair in Cloudflare KV store
+// using JSON encoding by default (`JSON.stringify(value)`).
+await ns.set("key", { some: "value" });
+
+// Read key-pair value from Cloudflare KV store
+const value = await ns.get("key");
+// => {
+//  some: "name"
+// }
+
+// Delete a key-pair
+await ns.delete("key");
+```
+
+```ts
+// Save a key-value pair as plain text (as opposed to JSON-serialized)
+await ns.set("όνομα", "José", { encode: false });
+
+// Read a key-value pair as plain text
+const value = await ns.get("όνομα", { decode: false });
+// => "José"
 ```
 
 ## Source Code

@@ -6,8 +6,13 @@
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "jest.jestCommandLine": "yarn node --experimental-vm-modules $(yarn bin jest)",
-  "jestrunner.jestCommand": "yarn node --experimental-vm-modules $(yarn bin jest)",
+  "jest.jestCommandLine": "yarn test",
+  "jestrunner.jestCommand": "yarn test",
+  "jestrunner.debugOptions": {
+    "env": {
+      "NODE_OPTIONS": "--experimental-vm-modules"
+    }
+  },
   "files.exclude": {
     "**/.cache": true,
     "**/.DS_Store": true,
