@@ -31,5 +31,11 @@
     "**/.yarn": true,
     "**/.pnp.*": true
   },
-  "cSpell.ignoreWords": ["endregion", "proxiable", "proxied", "zipcode"]
+  "cSpell.ignoreWords": [
+    "endregion",
+    "koistya",
+    "proxiable",
+    "proxied",
+    "zipcode"
+  ]
 }

@@ -240,6 +240,7 @@ For more information and usage examples check out the source code / tests:
 - **[`user.ts`](./src/user.ts)** ([tests](./src/user.test.ts))
 - **[`userTokens.ts`](./src/userTokens.ts)** ([tests](./src/userTokens.test.ts))
 - **[`dnsRecords.ts`](./src/dnsRecords.ts)** ([tests](./src/dnsRecords.test.ts))
+- **[`customHostnames.ts`](./src/customHostnames.ts)** ([tests](./src/customHostnames.test.ts))
 - **[`kv.ts`](./src/kv.ts)** ([tests](./src/kv.test.ts))
 
 ## Backers 💰
