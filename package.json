@@ -1,6 +1,6 @@
 {
   "name": "cloudflare-client",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "packageManager": "yarn@4.0.0-rc.10",
   "description": "Universal HTTP client for Cloudflare API",
   "license": "MIT",
@@ -54,22 +54,6 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./dnsRecords": {
-      "types": "./dist/dnsRecords.d.ts",
-      "default": "./dist/dnsRecords.js"
-    },
-    "./kv": {
-      "types": "./dist/kv.d.ts",
-      "default": "./dist/kv.js"
-    },
-    "./user": {
-      "types": "./dist/user.d.ts",
-      "default": "./dist/user.js"
-    },
-    "./userTokens": {
-      "types": "./dist/userTokens.d.ts",
-      "default": "./dist/userTokens.js"
     },
     "./package.json": "./package.json"
   },

@@ -3,6 +3,7 @@
 
 export * from "./customHostnames.js";
 export * from "./dnsRecords.js";
+export * from "./fetch.js";
 export * from "./kv.js";
 export * from "./user.js";
 export * from "./userTokens.js";
